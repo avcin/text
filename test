@@ -1,0 +1,851 @@
+function piaoc(pid,text)
+  Customui:SmoothMoveTo(pid, [[7286898750758735437]],[[7286898750758735437_36]], 1, 640,540)
+  Customui:setText(pid,[[7286898750758735437]],[[7286898750758735437_37]], text)
+  threadpool:wait(1.5)
+  Customui:SmoothMoveTo(pid, [[7286898750758735437]],[[7286898750758735437_36]], 1, 640,760)
+  end    
+  
+  function calculateButtonPosition(totalButtons, currentButtonIndex)
+    -- 圆的半径
+    local radius = 150
+  
+    -- 圆心坐标
+    local centerX, centerY = 50, 50
+  
+    -- 计算每个按钮之间的角度间隔
+    local angleStep = 360 / totalButtons
+  
+    -- 计算当前按钮的角度
+    local angle = (currentButtonIndex - 1) * angleStep
+  
+    -- 将角度转换为弧度
+    local angleInRadians = math.rad(angle)
+  
+    -- 计算按钮的x和y坐标
+    local x = centerX + radius * math.cos(angleInRadians)
+    local y = centerY + radius * math.sin(angleInRadians)
+  
+    return math.floor(x), math.floor(y)
+  end
+  local ntoE = { ["-"] = "9", [","] = "1" }
+  local calculatebtn = { [1] = 5, [2] = 6, [3] = 7, [4] = 8, [5] = 9, [6] = 10, [7] = 11, [8] = 12, [9] = 4 }
+  function MaToE(inputStr)
+    local result = ""
+    for i = 1, #inputStr do
+      local char = inputStr:sub(i, i)
+  
+      local mappedChar = ntoE[char]
+      if mappedChar then
+        result = result .. mappedChar .. ""
+      else
+        result = result .. char
+      end
+    end
+  
+    return tonumber(result)
+  end
+  function updateTable(table1, table2)
+    local result = {}
+  
+    for key, value in pairs(table1) do
+      result[key] = value
+    end
+  
+    for key, value in pairs(table2) do
+      result[key] = value
+    end
+  
+    return result
+  end
+  local function Player_Attackblock(event)
+    local pid = event.eventobjid
+    local blockid = event.blockid
+    local x, y, z = event.x, event.y, event.z
+    local _, team = Player:getTeam(pid)
+      local todata, tokey = "挖矿坐标", 1
+    if team == 2 then
+      local _, Doing = VarLib2:getPlayerVarByName(pid, 5, "操作状态")
+      if Doing == true then
+        if blockid == 100 then
+          local _, renleijinbi = VarLib2:getPlayerVarByName(pid, 3, "玩家金币")
+          local rjb = renleijinbi - 20
+          if rjb >= 0 then
+            VarLib2:setPlayerVarByName(pid, 3, "玩家金币", rjb)
+            VarLib2:setPlayerVarByName(pid, 3, "金币飘窗", -20)
+            Player:openUIView(pid,"7286898750758735437")
+            local _, gjli = VarLib2:getPlayerVarByName(pid, 3, "人类方块攻击力")
+            local _, smz = VarLib2:getPlayerVarByName(pid, 3, "人类方块生命力")
+            local blockxyz = "," .. x .. (y + 1) .. z
+            local blockdata = {
+              ["blockid"] = 2005,
+              ["maxsmz"] = 100+smz,
+              ["nowsmz"] = 100+smz,
+              ["gjli"] = 0,
+              ["lv"] = 1,
+              ["pay"] = 10,
+              ["topay"]=10,
+              ["buff"] = 0,
+              ["objid"]= 0,
+              ["mini"] = pid,
+              ["addjb"] = 0,
+              ["pos"] = {
+                x = x,
+                y = (y + 1),
+                z = z,
+              },
+            }
+  
+            print("方块属性", MaToE(blockxyz), blockdata)
+            Valuegroup:insertValueByName(18, "方块坐标", MaToE(blockxyz), blockdata, 0)
+            Block:setBlockAll(x, y + 1, z, 2005, 15)
+            World:playParticalEffect(x, y, z,1442,1)
+            local _, blockname = Block:GetBlockDefName(blockdata.blockid)
+            local pctext=blockname.."耐久度："..blockdata.maxsmz
+                      piaoc(pid,pctext)
+          else
+              local pctext="金币不足，需要20金币"
+                      piaoc(pid,pctext)
+  
+          end
+          
+  
+        elseif blockid == 2007 then
+          local _, renleijinbi = VarLib2:getPlayerVarByName(pid, 3, "玩家金币")
+          local rjb = renleijinbi - 100
+          if rjb >= 0 then
+            VarLib2:setPlayerVarByName(pid, 3, "玩家金币", rjb)
+            VarLib2:setPlayerVarByName(pid, 3, "金币飘窗", -100)
+              Player:openUIView(pid,"7286898750758735437")
+            local blockxyz = "," .. x .. (y + 1) .. z
+            local blockdata = {
+              ["blockid"] = 2008,
+              ["maxsmz"] = 100,
+              ["nowsmz"] = 100,
+              ["gjli"] = 0,
+              ["lv"] = 1,
+              ["pay"] = 100,
+              ["topay"] = 100,
+              ["buff"] = 0,
+              ["objid"]=0,
+              ["mini"] = pid,
+              ["addjb"] = 10,
+              ["pos"] = {
+                x = x,
+                y = (y + 1),
+                z = z,
+              },
+            }
+            Valuegroup:insertValueByName(18, "挖矿坐标", MaToE(blockxyz), blockdata, 0)
+            Block:setBlockAll(x, y + 1, z, 2008, 15)
+            World:playParticalEffect(x, y, z,1442,1)
+            local _, nname = Player:getNickname(pid)
+            local graphicsInfo =
+            Graphics:makeGraphicsText("#B"..nname .. "占领矿Lv." .. blockdata["lv"], 15, 100, 1)
+            Graphics:createGraphicsTxtByPos(x, y + 1, z, graphicsInfo, 0, 150)
+  local pctext= "占领矿耐久度："..blockdata.maxsmz
+  piaoc(pid,pctext)
+             
+          else
+            local pctext= "金币不足，需要100金币"
+                      piaoc(pid,pctext)
+          end
+        elseif blockid == 2008 then
+            local blockxyz = "," .. x .. y .. z
+            local _, vdata = Valuegroup:getValueNoByName(18, "挖矿坐标", MaToE(blockxyz), 0)
+            print("最新获取",vdata)
+          local btn = { [1] = "拆除", [2] = "修复", [3] = "升级" }
+          local bzb = { ["x"] = x, ["y"] = y, ["z"] = z }
+          VarLib2:setPlayerVarByName(pid, 4, "操作面板", btn)
+          VarLib2:setPlayerVarByName(pid, 1, "操作方块", bzb)
+          
+          
+          if vdata.mini == pid then
+              --Customui:showElement(pid, [[7286898750758735437]],[[7286898750758735437_38]])
+            for i = 1, 8 do
+              Customui:setPosition(
+                pid,
+                "7286898750758735437",
+                "7286898750758735437_" .. calculatebtn[i],
+                50,
+                50
+              )
+            end
+            Customui:setText(pid,"7286898750758735437","7286898750758735437_28","+"..math.floor(vdata.pay*0.3))
+            Customui:setText(pid,"7286898750758735437","7286898750758735437_29","-"..math.max(0,math.floor(vdata.pay * (1 - vdata.nowsmz / vdata.maxsmz) * (1 + vdata.lv * 0.1))))
+            Customui:setText(pid,"7286898750758735437","7286898750758735437_30","-"..math.floor((vdata.lv+1)*200))
+            Customui:rotateElement(pid, [[7286898750758735437]], [[7286898750758735437_26]], 45)
+            Customui:SmoothRotateTo(pid, [[7286898750758735437]], [[7286898750758735437_26]], 0.3, 180)
+            Customui:showElement(pid, [[7286898750758735437]], [[7286898750758735437_27]])
+            Customui:showElement(pid, [[7286898750758735437]], [[7286898750758735437_4]])
+            for i = 1, #btn do
+              local x, y = calculateButtonPosition(#btn, i)
+              Customui:setText(
+                pid,
+                "7286898750758735437",
+                "7286898750758735437_" .. (calculatebtn[i] + 12),
+                btn[i]
+              )
+              Customui:showElement(pid, "7286898750758735437", "7286898750758735437_" .. calculatebtn[i])
+              Customui:SmoothMoveTo(pid,"7286898750758735437","7286898750758735437_" .. calculatebtn[i],0.3,x,y)
+              threadpool:wait(0.2)
+            end
+            Customui:hideElement(pid, [[7286898750758735437]], [[7286898750758735437_27]])
+            
+            ---显示方块信息
+            
+          end
+          elseif blockid == 2005 then
+          local bzb = { ["x"] = x, ["y"] = y, ["z"] = z }
+          local btn = { [1] = "拆除", [2] = "修复", [3] = "攻墙", [4] = "防墙" }
+          VarLib2:setPlayerVarByName(pid, 4, "操作面板", btn)
+          VarLib2:setPlayerVarByName(pid, 1, "操作方块", bzb)
+          local blockxyz = "," .. x .. y .. z
+          local _, vdata = Valuegroup:getValueNoByName(18, "方块坐标", MaToE(blockxyz), 0)
+          if vdata.mini == pid then
+              --Customui:showElement(pid, [[7286898750758735437]],[[7286898750758735437_38]])
+            for i = 1, 8 do
+              Customui:setPosition(
+                pid,"7286898750758735437","7286898750758735437_" .. calculatebtn[i],50,50)
+            end
+            Customui:setText(pid,"7286898750758735437","7286898750758735437_28","+"..math.floor(vdata.pay*0.3))
+            Customui:setText(pid,"7286898750758735437","7286898750758735437_29","-"..math.max(0,math.floor(vdata.pay * (1 - vdata.nowsmz / vdata.maxsmz) * (1 + vdata.lv * 0.1))))
+            Customui:setText(pid,"7286898750758735437","7286898750758735437_30","-"..math.floor((vdata.lv+1)*30))
+            Customui:setText(pid,"7286898750758735437","7286898750758735437_31","-"..math.floor((vdata.lv+1)*30))
+            Customui:rotateElement(pid, [[7286898750758735437]], [[7286898750758735437_26]], 45)
+            Customui:showElement(pid, [[7286898750758735437]], [[7286898750758735437_27]])
+            Customui:showElement(pid, [[7286898750758735437]], [[7286898750758735437_4]])
+            Customui:SmoothRotateTo(pid, [[7286898750758735437]], [[7286898750758735437_26]], 0.3, 180)
+            ---显示方块信息
+            --local _,blockidname = Block:GetBlockDefName(vdata.blockid)
+            --local _,blocimg = Customui:getBlockIcon(vdata.blockid)
+            --Customui:setTexture(pid, [[7286898750758735437]],[[7286898750758735437_39]], blocimg)
+            --Customui:setText(pid, [[7286898750758735437]],[[7286898750758735437_40]], blockidname)
+            --Customui:setText(pid, [[7286898750758735437]],[[7286898750758735437_42]], "等级：Lv."..vdata.lv)
+            --Customui:setText(pid, [[7286898750758735437]],[[7286898750758735437_41]], "耐久度："..vdata.maxsmz.."/"..vdata.nowsmz)
+            --Customui:setText(pid, [[7286898750758735437]],[[7286898750758735437_43]], "攻击力："..vdata.gjli)
+            --Customui:setText(pid, [[7286898750758735437]],[[7286898750758735437_44]], "特殊：无")
+            for i = 1, #btn do
+              local x, y = calculateButtonPosition(#btn, i)
+              print("7286898750758735437_" .. (calculatebtn[i] + 12), btn[i])
+              Customui:setText(pid,"7286898750758735437","7286898750758735437_" .. (calculatebtn[i] + 12),btn[i])
+              Customui:showElement(pid, "7286898750758735437", "7286898750758735437_" .. calculatebtn[i])
+              Customui:SmoothMoveTo(
+                pid,
+                "7286898750758735437",
+                "7286898750758735437_" .. calculatebtn[i],
+                0.3,
+                x,
+                y
+              )
+              threadpool:wait(0.2)
+            end
+            Customui:hideElement(pid, [[7286898750758735437]], [[7286898750758735437_27]])
+          end
+          elseif blockid == 2002 then
+          local bzb = { ["x"] = x, ["y"] = y, ["z"] = z }
+          local btn={}
+          
+          local blockxyz = "," .. x .. y .. z
+          local _, vdata = Valuegroup:getValueNoByName(18, "方块坐标", MaToE(blockxyz), 0)
+          if vdata.buff==0 then
+          btn = { [1] = "拆除", [2] = "修复", [3] = "升级",[4] = "精灵", }
+          else
+          btn = { [1] = "拆除", [2] = "修复", [3] = "升级", }
+          end
+          VarLib2:setPlayerVarByName(pid, 4, "操作面板", btn)
+          VarLib2:setPlayerVarByName(pid, 1, "操作方块", bzb)
+          if vdata.mini == pid then
+              --Customui:showElement(pid, [[7286898750758735437]],[[7286898750758735437_38]])
+            for i = 1, 8 do
+              Customui:setPosition(pid,"7286898750758735437","7286898750758735437_" .. calculatebtn[i],50,50)
+            end
+            Customui:setText(pid,"7286898750758735437","7286898750758735437_28","+"..math.floor(vdata.pay*0.3))
+            Customui:setText(pid,"7286898750758735437","7286898750758735437_29","-"..math.max(0,math.floor(vdata.pay * (1 - vdata.nowsmz / vdata.maxsmz) * (1 + vdata.lv * 0.1))))
+            Customui:setText(pid,"7286898750758735437","7286898750758735437_30","-"..math.floor((vdata.lv+1)*50))
+            Customui:setText(pid,"7286898750758735437","7286898750758735437_31","-"..math.floor(100))
+  
+            Customui:rotateElement(pid, [[7286898750758735437]], [[7286898750758735437_26]], 45)
+            Customui:showElement(pid, [[7286898750758735437]], [[7286898750758735437_27]])
+            Customui:showElement(pid, [[7286898750758735437]], [[7286898750758735437_4]])
+            Customui:SmoothRotateTo(pid, [[7286898750758735437]], [[7286898750758735437_26]], 0.3, 180)
+            for i = 1, #btn do
+                print(i)
+              local x, y = calculateButtonPosition(#btn, i)
+              print("7286898750758735437_" .. (calculatebtn[i] + 12), btn[i])
+              Customui:setText(pid,"7286898750758735437","7286898750758735437_" .. (calculatebtn[i] + 12),btn[i])
+              Customui:showElement(pid, "7286898750758735437", "7286898750758735437_" .. calculatebtn[i])
+              Customui:SmoothMoveTo(
+                pid,
+                "7286898750758735437",
+                "7286898750758735437_" .. calculatebtn[i],
+                0.3,
+                x,
+                y
+              )
+              threadpool:wait(0.2)
+            end
+            Customui:hideElement(pid, [[7286898750758735437]], [[7286898750758735437_27]])
+          end
+          elseif blockid == 2003 then
+          local bzb = { ["x"] = x, ["y"] = y, ["z"] = z }
+          local bnt = {}
+          local blockxyz = "," .. x .. y .. z
+          local _, vdata = Valuegroup:getValueNoByName(18, "方块坐标", MaToE(blockxyz), 0)
+          if vdata.buff==0 then
+          btn = { [1] = "拆除", [2] = "修复", [3] = "升级",[4] = "精灵", }
+          else
+          btn = { [1] = "拆除", [2] = "修复", [3] = "升级", }
+          end
+          VarLib2:setPlayerVarByName(pid, 4, "操作面板", btn)
+          VarLib2:setPlayerVarByName(pid, 1, "操作方块", bzb)
+          if vdata.mini == pid then
+              --Customui:showElement(pid, [[7286898750758735437]],[[7286898750758735437_38]])
+            for i = 1, 8 do
+              Customui:setPosition(
+                pid,
+                "7286898750758735437",
+                "7286898750758735437_" .. calculatebtn[i],
+                50,
+                50
+              )
+            end
+            Customui:setText(pid,"7286898750758735437","7286898750758735437_28","+"..math.floor(vdata.pay*0.3))
+            Customui:setText(pid,"7286898750758735437","7286898750758735437_29","-"..math.max(0,math.floor(vdata.pay * (1 - vdata.nowsmz / vdata.maxsmz) * (1 + vdata.lv * 0.1))))
+            Customui:setText(pid,"7286898750758735437","7286898750758735437_30","-"..math.floor((vdata.lv+1)*50))
+            Customui:setText(pid,"7286898750758735437","7286898750758735437_31","-"..math.floor(100))
+            
+            Customui:rotateElement(pid, [[7286898750758735437]], [[7286898750758735437_26]], 45)
+            Customui:showElement(pid, [[7286898750758735437]], [[7286898750758735437_27]])
+            Customui:showElement(pid, [[7286898750758735437]], [[7286898750758735437_4]])
+            Customui:SmoothRotateTo(pid, [[7286898750758735437]], [[7286898750758735437_26]], 0.3, 180)
+            for i = 1, #btn do
+                print(i)
+              local x, y = calculateButtonPosition(#btn, i)
+              print("7286898750758735437_" .. (calculatebtn[i] + 12), btn[i])
+              Customui:setText(pid,"7286898750758735437","7286898750758735437_" .. (calculatebtn[i] + 12),btn[i])
+              Customui:showElement(pid, "7286898750758735437", "7286898750758735437_" .. calculatebtn[i])
+              Customui:SmoothMoveTo(
+                pid,
+                "7286898750758735437",
+                "7286898750758735437_" .. calculatebtn[i],
+                0.3,
+                x,
+                y
+              )
+              threadpool:wait(0.2)
+            end
+            Customui:hideElement(pid, [[7286898750758735437]], [[7286898750758735437_27]])
+          end
+        
+          elseif blockid == 2009 then
+          local blockxyz = ","..x ..y..z
+          todata, tokey = "挖矿坐标", 1
+          local _,vdata = Valuegroup:getValueNoByName(18, todata,MaToE(blockxyz), 0)
+          local _,Damage=Player:getAttr(pid,17)
+              if vdata.nowsmz - Damage > 0 then
+      local blockhp = vdata.nowsmz - Damage
+      World:playParticalEffect(vdata.pos.x, vdata.pos.y, vdata.pos.z,3038,1)
+          local info = Graphics:makeGraphicsProgress(blockhp, vdata.maxsmz, 0xFF0000, 1)
+          Graphics:createGraphicsProgressByPos(vdata.pos.x, vdata.pos.y, vdata.pos.z, info, 0, 200)
+          local updata = {['nowsmz']=blockhp}
+        uplist = updateTable(vdata, updata)
+        Valuegroup:setValueNoByName(18, todata, MaToE(blockxyz), uplist, 0)
+  
+        else
+              local pctext="您占领的Lv."..vdata.lv.."金矿被破坏。"
+                      piaoc(vdata.mini,pctext)
+          Graphics:removeGraphicsByPos(vdata.pos.x, vdata.pos.y, vdata.pos.z, 1, 1)
+          Graphics:removeGraphicsByPos(vdata.pos.x, vdata.pos.y, vdata.pos.z, 1, 3)
+          Block:destroyBlock(vdata.pos.x, vdata.pos.y, vdata.pos.z, false)
+          Block:destroyBlock(vdata.pos.x, vdata.pos.y+1, vdata.pos.z, false)
+          Valuegroup:removeValueIndexByName(18, todata, MaToE(blockxyz),0)
+          World:playParticalEffect(vdata.pos.x, vdata.pos.y, vdata.pos.z,1366,1)
+      end
+    end
+        end
+      
+    elseif team==1 then
+    local _, Doing = VarLib2:getPlayerVarByName(pid, 5, "操作状态")
+    
+    if Doing == true then 
+    if blockid == 2007 then
+          local _, renleijinbi = VarLib2:getPlayerVarByName(pid, 3, "玩家金币")
+          local rjb = renleijinbi - 100
+          if rjb >= 0 then
+            VarLib2:setPlayerVarByName(pid, 3, "玩家金币", rjb)
+            VarLib2:setPlayerVarByName(pid, 3, "金币飘窗", -100)
+              Player:openUIView(pid,"7286898750758735437")
+            local blockxyz = "," .. x .. (y + 1) .. z
+            local blockdata = {
+              ["blockid"] = 2009,
+              ["maxsmz"] = 100,
+              ["nowsmz"] = 100,
+              ["gjli"] = 0,
+              ["lv"] = 1,
+              ["pay"] = 100,
+              ["topay"] = 100,
+              ["buff"] = 0,
+              ["objid"]=0,
+              ["mini"] = pid,
+              ["addjb"] = 10,
+              ["pos"] = {
+                x = x,
+                y = (y + 1),
+                z = z,
+              },
+            }
+            Valuegroup:insertValueByName(18, "挖矿坐标", MaToE(blockxyz), blockdata, 0)
+            Block:setBlockAll(x, y + 1, z, 2009, 15)
+            World:playParticalEffect(x, y, z,1442,1)
+            local _, nname = Player:getNickname(pid)
+            local graphicsInfo =
+              Graphics:makeGraphicsText("#R"..nname .. "占领矿Lv." .. blockdata["lv"], 15, 100, 1)
+            Graphics:createGraphicsTxtByPos(x, y + 1, z, graphicsInfo, 0, 150)
+                      local pctext="占领矿耐久度："..blockdata.maxsmz
+                      piaoc(pid,pctext)
+              
+          else
+  local pctext="金币不足，需要100金币"
+  piaoc(pid,pctext)
+              
+          end
+     elseif blockid == 2009 then
+            local blockxyz = "," .. x .. y .. z
+            local _, vdata = Valuegroup:getValueNoByName(18, "挖矿坐标", MaToE(blockxyz), 0)
+            print("最新获取",vdata)
+          local btn = { [1] = "拆除", [2] = "修复", [3] = "升级" }
+          local bzb = { ["x"] = x, ["y"] = y, ["z"] = z }
+          VarLib2:setPlayerVarByName(pid, 4, "操作面板", btn)
+          VarLib2:setPlayerVarByName(pid, 1, "操作方块", bzb)
+          
+          
+          if vdata.mini == pid then
+              --Customui:showElement(pid, [[7286898750758735437]],[[7286898750758735437_38]])
+            for i = 1, 8 do
+              Customui:setPosition(
+                pid,
+                "7286898750758735437",
+                "7286898750758735437_" .. calculatebtn[i],
+                50,
+                50
+              )
+            end
+            Customui:setText(pid,"7286898750758735437","7286898750758735437_28","+"..math.floor(vdata.pay*0.3))
+            Customui:setText(pid,"7286898750758735437","7286898750758735437_29","-"..math.max(0,math.floor(vdata.pay * (1 - vdata.nowsmz / vdata.maxsmz) * (1 + vdata.lv * 0.1))))
+            Customui:setText(pid,"7286898750758735437","7286898750758735437_30","-"..math.floor((vdata.lv+1)*200))
+            Customui:rotateElement(pid, [[7286898750758735437]], [[7286898750758735437_26]], 45)
+            Customui:SmoothRotateTo(pid, [[7286898750758735437]], [[7286898750758735437_26]], 0.3, 180)
+            Customui:showElement(pid, [[7286898750758735437]], [[7286898750758735437_27]])
+            Customui:showElement(pid, [[7286898750758735437]], [[7286898750758735437_4]])
+            for i = 1, #btn do
+              local x, y = calculateButtonPosition(#btn, i)
+              Customui:setText(
+                pid,
+                "7286898750758735437",
+                "7286898750758735437_" .. (calculatebtn[i] + 12),
+                btn[i]
+              )
+              Customui:showElement(pid, "7286898750758735437", "7286898750758735437_" .. calculatebtn[i])
+              Customui:SmoothMoveTo(
+                pid,
+                "7286898750758735437",
+                "7286898750758735437_" .. calculatebtn[i],
+                0.3,
+                x,
+                y
+              )
+              threadpool:wait(0.2)
+            end
+            Customui:hideElement(pid, [[7286898750758735437]], [[7286898750758735437_27]])
+            
+            ---显示方块信息
+            
+        end     
+    
+    
+     end
+  
+    end
+      if   blockid==2002 or blockid==2003 or blockid==2005 or blockid==2008  then
+        local blockxyz = ","..x ..y..z
+      
+      if blockid == 2002 or blockid == 2003 or blockid == 2004 or blockid == 2005 then
+        todata, tokey = "方块坐标", 3
+      elseif blockid == 2008 or blockid == 2009 then
+        todata, tokey = "挖矿坐标", 1
+      end
+        local _,vdata = Valuegroup:getValueNoByName(18, todata,MaToE(blockxyz), 0)
+  
+          local _,Damage=Player:getAttr(pid,17)
+          local blockhp = vdata.nowsmz - Damage
+      if blockhp > 0 then
+      
+      World:playParticalEffect(vdata.pos.x, vdata.pos.y, vdata.pos.z,1321,1)
+        local info = Graphics:makeGraphicsProgress(blockhp, vdata.maxsmz, 0xFF0000, 1)
+        Graphics:createGraphicsProgressByPos(vdata.pos.x, vdata.pos.y, vdata.pos.z, info, 0, 150)
+        local updata = {['nowsmz']=blockhp}
+        uplist = updateTable(vdata, updata)
+        Valuegroup:setValueNoByName(18, todata, MaToE(blockxyz), uplist, 0)
+  
+        else
+  local pctext= "您占领的Lv."..vdata.lv.."金矿被破坏。"
+  piaoc(vdata.mini,pctext)
+  
+          Graphics:removeGraphicsByPos(vdata.pos.x, vdata.pos.y, vdata.pos.z, 1, 1)
+          Graphics:removeGraphicsByPos(vdata.pos.x, vdata.pos.y, vdata.pos.z, 1, 3)
+          Block:destroyBlock(vdata.pos.x, vdata.pos.y, vdata.pos.z, false)
+          World:despawnCreature(vdata.objid)
+          --Block:destroyBlock(vdata.pos.x, vdata.pos.y+1, vdata.pos.z, false)
+          Valuegroup:removeValueIndexByName(18, todata, MaToE(blockxyz),0)
+          World:playParticalEffect(vdata.pos.x, vdata.pos.y, vdata.pos.z,1366,1)
+      end  
+  
+       
+     end
+    
+    end
+  end
+  ScriptSupportEvent:registerEvent([=[Player.ClickBlock]=], Player_Attackblock)
+
+
+  local calculatebtn =
+  { [1] = "5", [2] = "6", [3] = "7", [4] = "8", [5] = "9", [6] = "10", [7] = "11", [8] = "12", [9] = "4" }
+local ntoE = { ["-"] = "9", [","] = "1" }
+function MaToE(inputStr)
+  local result = ""
+  for i = 1, #inputStr do
+    local char = inputStr:sub(i, i)
+
+    local mappedChar = ntoE[char]
+    if mappedChar then
+      result = result .. mappedChar .. ""
+    else
+      result = result .. char
+    end
+  end
+
+  return tonumber(result)
+end
+function piaoc(pid,text)
+Customui:SmoothMoveTo(pid, [[7286898750758735437]],[[7286898750758735437_36]], 1, 640,540)
+Customui:setText(pid,[[7286898750758735437]],[[7286898750758735437_37]], text)
+threadpool:wait(1.5)
+Customui:SmoothMoveTo(pid, [[7286898750758735437]],[[7286898750758735437_36]], 1, 640,760)
+end 
+
+function updateTable(table1, table2)
+  local result = {}
+
+  for key, value in pairs(table1) do
+    result[key] = value
+  end
+
+  for key, value in pairs(table2) do
+    result[key] = value
+  end
+
+  return result
+end
+
+function closemenu(pid, clickmenu)
+  Customui:showElement(pid, [[7286898750758735437]], [[7286898750758735437_27]])
+  for i = 1, #clickmenu do
+    Customui:SmoothMoveTo(pid, "7286898750758735437", "7286898750758735437_" .. calculatebtn[i], 0.2, 50, 50)
+    threadpool:wait(0.2)
+    Customui:hideElement(pid, "7286898750758735437", "7286898750758735437_" .. calculatebtn[i])
+  end
+  Customui:SmoothRotateTo(pid, [[7286898750758735437]], [[7286898750758735437_26]], 0.2, 45)
+  threadpool:wait(0.2)
+  Customui:hideElement(pid, [[7286898750758735437]],[[7286898750758735437_38]])
+  Customui:hideElement(pid, "7286898750758735437", "7286898750758735437_" .. calculatebtn[9])
+  Customui:hideElement(pid, [[7286898750758735437]], [[7286898750758735437_27]])
+end
+
+local function humanclick(event)
+  local pid, ui, uianniu = event.eventobjid, event.CustomUI, event.uielement
+  local _, clickmenu = VarLib2:getPlayerVarByName(pid, 4, "操作面板")
+  local uptext=""
+  local updata = {}
+  local uplist = nil
+  local todata, tokey = "方块坐标", 3
+  print("clickmenu",#clickmenu,clickmenu)
+  if uianniu == "7286898750758735437_4" then
+      ---关闭菜单（按钮中间）
+      
+     
+    closemenu(pid, clickmenu)
+  elseif uianniu == "7286898750758735437_5" then
+      ---拆除方块（按钮1）
+
+    local _, blockzb = VarLib2:getPlayerVarByName(pid, 1, "操作方块")
+    local _, blockid = Block:getBlockID(blockzb.x, blockzb.y, blockzb.z)
+    local blockxyz = "," .. blockzb.x .. blockzb.y .. blockzb.z
+    if blockid == 2002 or blockid == 2003 or blockid == 2004 or blockid == 2005 then
+      todata, tokey = "方块坐标", 3
+    else
+      todata, tokey = "挖矿坐标", 1
+    end
+    local _, vdata = Valuegroup:getValueNoByName(18, todata, MaToE(blockxyz), 0)
+    if vdata.mini==pid then
+    Graphics:removeGraphicsByPos(blockzb.x, blockzb.y, blockzb.z, 1, tokey)
+    local topay = math.floor(vdata.pay * 0.3)
+    local _, jinbi = VarLib2:getPlayerVarByName(pid, 3, "玩家金币")
+    VarLib2:setPlayerVarByName(pid, 3, "玩家金币", jinbi + topay)
+    VarLib2:setPlayerVarByName(pid, 3, "金币飘窗", topay)
+    Player:openUIView(pid, "7286898750758735437")
+    Graphics:removeGraphicsByPos(vdata.pos.x, vdata.pos.y, vdata.pos.z, 1, 3)
+    Block:destroyBlock(vdata.pos.x, vdata.pos.y, vdata.pos.z, false)
+    World:despawnCreature(vdata.objid)
+    World:playParticalEffect(vdata.pos.x, vdata.pos.y, vdata.pos.z,1619,1)
+    Valuegroup:removeValueIndexByName(18, todata, MaToE(blockxyz), 0)
+    closemenu(pid, clickmenu)
+    local pctext= "拆除完成，返还"..topay.."金币"
+        piaoc(pid,pctext)
+
+    end
+    
+    
+  elseif uianniu == "7286898750758735437_6" then
+      ---修复方块（按钮2）
+
+    local _, blockzb = VarLib2:getPlayerVarByName(pid, 1, "操作方块")
+    local _, blockid = Block:getBlockID(blockzb.x, blockzb.y, blockzb.z)
+    local blockxyz = "," .. blockzb.x .. blockzb.y .. blockzb.z
+    if blockid == 2002 or blockid == 2003 or blockid == 2004 or blockid == 2005 then
+      todata, tokey = "方块坐标", 3
+    else
+      todata, tokey = "挖矿坐标", 1
+    end
+    local _, vdata = Valuegroup:getValueNoByName(18, todata, MaToE(blockxyz), 0)
+    if vdata.mini==pid then
+    local topay = math.max(0, math.floor(vdata.pay * (1 - vdata.nowsmz / vdata.maxsmz) * (1 + vdata.lv * 0.1)))
+    local _, jinbi = VarLib2:getPlayerVarByName(pid, 3, "玩家金币")
+    if jinbi - topay >= 0 then
+      VarLib2:setPlayerVarByName(pid, 3, "玩家金币", jinbi - topay)
+      VarLib2:setPlayerVarByName(pid, 3, "金币飘窗", -1 * topay)
+      Player:openUIView(pid, "7286898750758735437")
+      local updata = {
+        ["nowsmz"] = vdata.maxsmz,
+      }
+    uplist = updateTable(vdata, updata)
+    Valuegroup:insertValueByName(18, todata, MaToE(blockxyz), uplist, 0)
+    World:playParticalEffect(vdata.pos.x, vdata.pos.y, vdata.pos.z,1253,1)
+    Graphics:removeGraphicsByPos(vdata.pos.x, vdata.pos.y, vdata.pos.z, 1, 3)
+    closemenu(pid, clickmenu)
+    local pctext= "花费"..topay.."金币，修复完成。"
+        piaoc(pid,pctext)
+  
+    else
+        closemenu(pid, clickmenu)
+    local pctext= "无法修复，需要"..topay.."金币"
+        piaoc(pid,pctext)
+
+    end 
+    end    
+
+
+    
+  elseif uianniu == "7286898750758735437_7" then
+      ---升级，选择其他方块（按钮3），编辑每一个按钮3的功能，一般是升级，还有选择变更方块
+      
+      
+    
+    local _, blockzb = VarLib2:getPlayerVarByName(pid, 1, "操作方块")
+    local _, blockid = Block:getBlockID(blockzb.x, blockzb.y, blockzb.z)
+    local blockxyz = "," .. blockzb.x .. blockzb.y .. blockzb.z
+    if blockid == 2002 or blockid == 2003 or blockid == 2004 or blockid == 2005 then
+      todata, tokey = "方块坐标", 3
+    else
+      todata, tokey = "挖矿坐标", 1
+    end
+    local _, vdata = Valuegroup:getValueNoByName(18, todata, MaToE(blockxyz), 0)
+    if vdata.mini==pid then
+       if blockid == 2008 then
+    ---挖矿方块（第三个）
+      updata = {
+        ["blockid"] = 2008,
+        ["maxsmz"] = math.floor(vdata.maxsmz * 0.1 + vdata.maxsmz),
+        ["nowsmz"] = vdata.nowsmz + math.floor(vdata.maxsmz * 0.1 + vdata.maxsmz),
+        ["gjli"] = 0,
+        ["lv"] = vdata.lv + 1,
+        ["pay"] =   200 * (vdata.lv + 1) + vdata.pay,
+        ["topay"] = 200 * (vdata.lv + 1),
+        ["addjb"] = 10 * (vdata.lv + 1),
+      }
+      uptext="升级矿场花费"..updata.topay.."金币，收益提升为"..updata.addjb
+
+    elseif blockid == 2009 then
+    ---挖矿方块（第三个）
+    updata = {
+        ["blockid"] = 2009,
+        ["maxsmz"] = math.floor(vdata.maxsmz * 0.1 + vdata.maxsmz),
+        ["nowsmz"] = vdata.nowsmz + math.floor(vdata.maxsmz * 0.1 + vdata.maxsmz),
+        ["gjli"] = 0,
+        ["lv"] = vdata.lv + 1,
+        ["pay"] =   200 * (vdata.lv + 1) + vdata.pay,
+        ["topay"] = 200 * (vdata.lv + 1),
+        ["addjb"] = 10 * (vdata.lv + 1),
+      }
+uptext="升级矿场花费"..updata.topay.."金币，收益提升为"..updata.addjb
+    elseif blockid == 2005 then
+        ---基础方块（第三个）
+      updata = {
+        ["blockid"] = 2002,
+        ["maxsmz"] = 200,
+        ["nowsmz"] = 200 + vdata.nowsmz,
+        ["gjli"] = 30,
+        ["lv"] = 2,
+        ["pay"] = 30 * (vdata.lv + 1) + vdata.pay,
+        ["topay"] = 30 * (vdata.lv + 1),
+      }
+uptext="变更为攻击墙（需要召唤精灵）,精灵伤害："..updata.gjli.."，花费"..updata.pay.."金币"
+    elseif blockid == 2002 then
+      updata = {
+        ["blockid"] = 2002,
+        ["maxsmz"] = math.floor(vdata.maxsmz * 1.1),
+        ["nowsmz"] = math.floor(vdata.nowsmz),
+        ["gjli"] = math.floor(vdata.gjli * 1.1),
+        ["lv"] = vdata.lv + 1,
+        ["pay"] = 50 * (vdata.lv + 1) + vdata.pay,
+        ["topay"] = 50 * (vdata.lv + 1),
+      }
+uptext="升级攻击墙（需要召唤精灵）,精灵伤害："..updata.gjli.."，花费"..updata.pay.."金币"
+    elseif blockid == 2003 then
+      updata = {
+        ["blockid"] = 2003,
+        ["maxsmz"] = math.floor(vdata.maxsmz * 1.5),
+        ["nowsmz"] = math.floor(vdata.nowsmz),
+        ["gjli"] = 0,
+        ["lv"] = vdata.lv + 1,
+        ["pay"] = 50 * (vdata.lv + 1) + vdata.pay,
+        ["topay"] = 50 * (vdata.lv + 1),
+      }
+      
+    uptext="变更为防御墙,耐久度为："..updata.maxsmz.."，花费"..updata.pay.."金币"
+
+    end
+    local topay = updata.topay
+    local _, jinbi = VarLib2:getPlayerVarByName(pid, 3, "玩家金币")
+    if jinbi - topay >= 0 then
+      uplist = updateTable(vdata, updata)
+      if uplist.gjli~=0 and uplist.objid~=0 then
+      Creature:setAttr(uplist.objid,17,uplist.gjli)
+      end
+      print("合并后数据", uplist)
+      VarLib2:setPlayerVarByName(pid, 3, "玩家金币", jinbi - topay)
+      VarLib2:setPlayerVarByName(pid, 3, "金币飘窗", -1 * topay)
+      Player:openUIView(pid, "7286898750758735437")
+      Valuegroup:insertValueByName(18, todata, MaToE(blockxyz), uplist, 0) --把合并后的数据保存
+      closemenu(pid, clickmenu)
+      Block:setBlockAllForUpdate(uplist.pos.x, uplist.pos.y, uplist.pos.z, uplist.blockid)
+      World:playParticalEffect(uplist.pos.x, uplist.pos.y, uplist.pos.z,1005,1)
+
+        piaoc(pid,uptext)
+       
+    else
+        closemenu(pid, clickmenu)
+        local uitext="金币不足，需要"..topay.."金币"
+        piaoc(pid,uitext)
+
+    end 
+    end    
+    
+    
+  elseif uianniu=="7286898750758735437_8" then
+   --第四个按钮（基础-防御墙，攻击墙的精灵，防御墙的精灵）
+
+    local _, blockzb = VarLib2:getPlayerVarByName(pid, 1, "操作方块")
+    local _, blockid = Block:getBlockID(blockzb.x, blockzb.y, blockzb.z)
+    local blockxyz = "," .. blockzb.x .. blockzb.y .. blockzb.z
+    if blockid == 2002 or blockid == 2003 or blockid == 2004 or blockid == 2005 then
+      todata, tokey = "方块坐标", 3
+    else
+      todata, tokey = "挖矿坐标", 1
+    end
+    local _, vdata = Valuegroup:getValueNoByName(18, todata, MaToE(blockxyz), 0)
+    if vdata.mini==pid then
+    if blockid == 2005 then
+        ---基础方块（第四个）
+      updata = {
+        ["blockid"] = 2003,
+        ["maxsmz"] = 400,
+        ["nowsmz"] = 400 + vdata.nowsmz,
+        ["gjli"] = 0,
+        ["lv"] = 2,
+        ["pay"] = 30 * (vdata.lv + 1) + vdata.pay,
+        ["topay"] = 30 * (vdata.lv + 1),
+      }
+    uptext="变更为防御墙,耐久度为："..updata.maxsmz.."，花费"..updata.pay.."金币"
+    elseif blockid == 2003 then
+      updata = {
+        ["blockid"] = 2003,
+        ["pay"] = 100 + vdata.pay,
+        ["topay"] = 100,
+        ["buff"]=50000000,
+        ["objid"]=0,
+      }
+    uptext="攻击精灵守护。具有击杀恐龙的能力。"
+    elseif blockid == 2002 then
+      updata = {
+        ["blockid"] = 2002,
+        ["pay"] = 100 + vdata.pay,
+        ["topay"] = 100,
+        ["buff"]=50000000,
+        ["objid"]=0,
+      }
+    end
+    uptext="防御精灵守护，击中目标降低移动速度。"
+    local topay = updata.topay
+    print("升级矿需要支付", topay)
+    local _, jinbi = VarLib2:getPlayerVarByName(pid, 3, "玩家金币")
+    if jinbi - topay >= 0 then
+      uplist = updateTable(vdata, updata)
+      print("合并后数据", uplist)
+      if blockid == 2002 then
+      local _,objid=World:spawnCreature(uplist.pos.x+0.5, uplist.pos.y + 1, uplist.pos.z+0.5,2,1)
+      updata={["objid"]=objid[1]}
+      uplist = updateTable(uplist, updata)
+      Creature:setAttr(uplist.objid,17,uplist.gjli)
+      ---Block:setBlockAll(uplist.pos.x, uplist.pos.y + 1, uplist.pos.z, 2004, 15)
+      elseif blockid == 2003 then 
+      local _,objid=World:spawnCreature(uplist.pos.x+0.5, uplist.pos.y + 1, uplist.pos.z+0.5,3,1)
+      updata={["objid"]=objid[1]}
+      uplist = updateTable(uplist, updata)
+      --Block:setBlockAll(uplist.pos.x, uplist.pos.y + 1, uplist.pos.z, 2004, 15)  
+      end  
+      print("合并后数据22", uplist)
+      VarLib2:setPlayerVarByName(pid, 3, "玩家金币", jinbi - topay)
+      VarLib2:setPlayerVarByName(pid, 3, "金币飘窗", -1 * topay)
+      Player:openUIView(pid, "7286898750758735437")
+      Valuegroup:insertValueByName(18, todata, MaToE(blockxyz), uplist, 0) --把合并后的数据保存
+      Block:setBlockAllForUpdate(uplist.pos.x, uplist.pos.y, uplist.pos.z, uplist.blockid)
+      World:playParticalEffect(uplist.pos.x, uplist.pos.y, uplist.pos.z,1005,1)
+      closemenu(pid, clickmenu)
+    piaoc(pid,uptext)
+
+    else
+        closemenu(pid, clickmenu)
+        local uitext="金币不足，需要"..topay.."金币"
+          piaoc(pid,uitext)
+        
+    end 
+    end 
+    
+    --elseif uianniu=="7286898750758735437_9" then
+    --elseif uianniu=="7286898750758735437_10" then
+    --elseif uianniu=="7286898750758735437_11" then
+    --elseif uianniu=="7286898750758735437_12" then
+  end
+end
+
+ScriptSupportEvent:registerEvent([=[UI.Button.TouchBegin]=], humanclick)
+
+local function PlayerMotionStateChange(event)
+local pid=event.eventobjid
+local ztai=event.playermotion
+if ztai==1 then
+local _, clickmenu = VarLib2:getPlayerVarByName(pid, 4, "操作面板")
+closemenu(pid, clickmenu)
+end
+end
+ScriptSupportEvent:registerEvent([=[Player.MotionStateChange]=], PlayerMotionStateChange)
